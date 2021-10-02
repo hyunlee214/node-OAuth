@@ -15,9 +15,16 @@ window.fbAsyncInit = () => {
   FB.login(
     (response) => {
     console.log(response);
-    // handle the response
+    
+    // 액세스 토큰 : 해당 user의 프로필과 이메일 정보를 알아낼 권한만 보유 , expiresIn시간 동안만 유효  
+    // 해당 서비스의 서버가 액세스 토큰을 받게 되면, 해당 액세스 토큰이 해당 앱에서 사용 가능한 액세스 토큰이 맞는지 검증 필요(요청 단계)
+    // facebook이 해당 앱에게 액세스 토큰의 데이터 전송 
+    // 해당 앱은 받은 정보를 이용해 회원가입 완료 
+    fetch(
+      `/users/auth/facebook?access_tocken = ${response.authResponse.accessToken}`
+      )
   }, 
-    {scope: 'public_profile,email'});
+    {scope: 'public_profile,email'})
   })
 };
 

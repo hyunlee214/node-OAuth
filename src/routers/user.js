@@ -13,6 +13,7 @@ router.post('/auth/facebook', async (req, res) => {
     return
   }
 
+  // facebook 액세스 토큰에 해당하는 우리 서비스 유저의 액세스 토큰을 가져옴
   const userAccessToken = await getUserAccessTokenForFacebookAccessToken(
     fbUserAccessToken
   )
