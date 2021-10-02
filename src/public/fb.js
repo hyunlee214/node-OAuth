@@ -21,8 +21,11 @@ window.fbAsyncInit = () => {
     // facebook이 해당 앱에게 액세스 토큰의 데이터 전송 
     // 해당 앱은 받은 정보를 이용해 회원가입 완료 
     fetch(
-      `/users/auth/facebook?access_tocken = ${response.authResponse.accessToken}`
-      )
+      `/users/auth/facebook?access_tocken = ${response.authResponse.accessToken}`,
+      {
+        method: 'POST',
+      }
+    )       
   }, 
     {scope: 'public_profile,email'})
   })

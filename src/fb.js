@@ -26,8 +26,20 @@ async function getFacebookIdFromAccessToken(accessToken) {
   const appAccessTokenReq = await fetch(
     `https://graph.facebook.com/oauth/access_token?client_id=${FB_APP_ID}&client_secret=${FB_CLIENT_SECRET}&grant_type=client_credentials`
     );
-    const appAccessToken = (await appAccessTokenReq.json()).access_token
-}
+    const appAccessToken = (await appAccessTokenReq.json()).access_token;
+
+    console.log(appAccessToken);  // 확인
+
+    const debugReq = await fetch(
+      `https://graph.facebook.com/debug_token?input_token=${accessToken}&acess_token=${appAccessToken}`
+    );
+    const debugResult = await debugReq.json();
+
+    if (debugResult.data.app_id !== FB_APP_ID) {
+      throw new Error('Not a vaild access token');
+    }
+    return debugResult.data.user_id;
+  };
 
 /**
  * @param {string} facebookId
