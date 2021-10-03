@@ -1,6 +1,8 @@
 /* eslint-disable prefer-destructuring */
 
 const { default: fetch } = require('node-fetch');
+const { v4: uuidv4 } = require('uuid');
+const { getUsersCollection } = require('./mongo');
 
 /** @type {string} */
 const FB_APP_ID = process.env.FB_APP_ID
@@ -12,7 +14,12 @@ const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET
  * @returns {Promise<string>}
  */
 async function createUserWithFacebookIdAndGetId(facebookId) {
-  // TOOD: implement it
+  const users = await getUsersCollection();
+  const userId = 'uuidv4()';  
+  await users.insertOne({
+    id: userId,
+    facebookId,
+  });
 }
 
 /**
@@ -20,7 +27,7 @@ async function createUserWithFacebookIdAndGetId(facebookId) {
  * @returns {Promise<string>}
  */
 async function getFacebookIdFromAccessToken(accessToken) {
-  // TODO: implement the function using Facebook API
+  // facebook API를 사용하여 기능 구현
   // https://developers.facebook.com/docs/facebook-login/access-tokens/#generating-an-app-access-token
   // https://developers.facebook.com/docs/graph-api/reference/v10.0/debug_token
   const appAccessTokenReq = await fetch(
@@ -46,7 +53,7 @@ async function getFacebookIdFromAccessToken(accessToken) {
  * @returns {Promise<string | undefined>}
  */
 async function getUserIdWithFacebookId(facebookId) {
-  // TODO: implement it
+ // 2번 경우
 }
 
 /**
@@ -55,8 +62,11 @@ async function getUserIdWithFacebookId(facebookId) {
  * @param {string} token
  */
 async function getUserAccessTokenForFacebookAccessToken(token) {
-  // TODO: implement it
-  await getFacebookIdFromAccessToken(token)
+  const facebookId = await getFacebookIdFromAccessToken (token)
+  // 1. 해당 facebook ID에 해당하는 유저가 데이터베이스에 없는 경우
+  const userId = await createUserWithFacebookIdAndGetId(facebookId);
+
+  // 2. 해당 facebook ID에 해당하는 유저가 데이터베이스에 있는 경우
 }
 
 module.exports = {
