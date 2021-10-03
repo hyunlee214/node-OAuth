@@ -54,6 +54,14 @@ async function getFacebookIdFromAccessToken(accessToken) {
  */
 async function getUserIdWithFacebookId(facebookId) {
  // 2번 경우
+ const users = await getUsersCollection();
+ const user = users.findOne({
+   facebookId,
+ })
+ if (user) {
+  return user.Id;
+ }
+  return undefined; 
 }
 
 /**
