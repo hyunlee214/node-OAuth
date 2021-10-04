@@ -1,11 +1,11 @@
 // @ts-check
 
-require('dotenv').config();
+require("dotenv").config();
 
-const app = require('./app')
+const app = require("./app");
 
-const PORT = 5000
+const PORT = 5555;
 
 app.listen(PORT, () => {
-  console.log(`The Express server is listening at port: ${PORT}`)
-})
+  console.log(`The Express server is listening at port: ${PORT}`);
+});

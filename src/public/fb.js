@@ -24,7 +24,7 @@ window.fbAsyncInit = () => {
       {
         method: 'POST',
       }
-    )       
+    )
   }, 
     {scope: 'public_profile,email'})
   })
