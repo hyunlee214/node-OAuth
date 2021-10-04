@@ -6,6 +6,8 @@ const { FB_APP_ID } = require('../fb')
 const router = express.Router()
 
 router.get('/', (req, res) => {
+  // @ts-ignore
+  console.log('userId', req.userId);
   res.render('index', {
     // @ts-ignore
     userId: req.userId,
@@ -16,7 +18,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/logout', (req, res) => {
-  // TODO: implement
+
 })
 
 module.exports = router

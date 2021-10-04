@@ -11,15 +11,32 @@ app.set('view engine', 'pug')
 const userRouter = require('./routers/user')
 const mainRouter = require('./routers/main')
 const setupPassportFBAuth = require('./passport-auth-fb')
+const { verifyJWT } = require('./jwt')
+const { getUsersCollection } = require('./mongo')
 
 app.use(cookieParser())
 app.use(async (req, res, next) => {
   /* eslint-disable camelcase */
-  const { access_token } = req.cookies
+  const { access_token } = req.cookies     // access_token을 쿠키에서 가져오는 과정
   if (access_token) {
-    // TODO: implement here
+    /** @type {string} */
+    try {
+    const userId = await verifyJWT(access_token);
+    if (userId) {
+      const users = await getUsersCollection();
+      const user = await users.findOne({
+        id: userId,
+      });
+      if (user) {
+        // @ts-ignore
+        req.userId = user.id;
+      }
+    }
+  } catch(e) {
+    console.log('Invaild token', e);
   }
-  next()
+}
+  next();
 })
 
 setupPassportFBAuth(app)

@@ -16,11 +16,12 @@ const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET
  */
 async function createUserWithFacebookIdAndGetId(facebookId) {
   const users = await getUsersCollection();
-  const userId = 'uuidv4()';  
+  const userId = uuidv4();  
   await users.insertOne({
     id: userId,
     facebookId,
   });
+  return userId;
 }
 
 /**
@@ -36,10 +37,8 @@ async function getFacebookIdFromAccessToken(accessToken) {
     );
     const appAccessToken = (await appAccessTokenReq.json()).access_token;
 
-    console.log(appAccessToken);  // 확인
-
     const debugReq = await fetch(
-      `https://graph.facebook.com/debug_token?input_token=${accessToken}&acess_token=${appAccessToken}`
+      `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${appAccessToken}`
     );
     const debugResult = await debugReq.json();
 
@@ -48,7 +47,7 @@ async function getFacebookIdFromAccessToken(accessToken) {
     }
     return debugResult.data.user_id;
   };
-
+ 
 /**
  * @param {string} facebookId
  * @returns {Promise<string | undefined>}
@@ -60,7 +59,7 @@ async function getUserIdWithFacebookId(facebookId) {
    facebookId,
  })
  if (user) {
-  return user.Id;
+  return user.id;
  }
   return undefined; 
 }
@@ -71,14 +70,14 @@ async function getUserIdWithFacebookId(facebookId) {
  * @param {string} token
  */
 async function getUserAccessTokenForFacebookAccessToken(token) {
-  const facebookId = await getFacebookIdFromAccessToken (token);
+  const facebookId = await getFacebookIdFromAccessToken(token);
 
-  const existingUserId = await getUserIdWithFacebookId(facebookId)
+  const existingUserId = await getUserIdWithFacebookId(facebookId);
 
   // 2. 해당 facebook ID에 해당하는 유저가 데이터베이스에 있는 경우
   if (existingUserId) {
     return getAccessTokenForUserId(existingUserId);
-  }
+  } 
 
   // 1. 해당 facebook ID에 해당하는 유저가 데이터베이스에 없는 경우
   const userId = await createUserWithFacebookIdAndGetId(facebookId);
