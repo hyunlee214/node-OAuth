@@ -29,10 +29,7 @@ app.use(async (req, res, next) => {
         });
         if (user) {
           // @ts-ignore
-          req.user = {
-            id: user.id,
-            name: user.name, // checking 필요
-          };
+          req.user = user;
         }
       }
     } catch (e) {

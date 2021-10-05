@@ -15,13 +15,18 @@ const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET;
  * @param {string} name
  * @returns {Promise<string>}
  */
-async function createUserWithFacebookProfileAndGetId(facebookId, name) {
+async function createUserWithFacebookProfileAndGetId({
+  id: facebookId,
+  name,
+  picture,
+}) {
   const users = await getUsersCollection();
   const userId = uuidv4();
   await users.insertOne({
     id: userId,
     facebookId,
     name,
+    picture,
   });
   return userId;
 }
@@ -52,7 +57,7 @@ async function getFacebookProfileFromAccessToken(accessToken) {
   const facebookId = debugResult.data.user_id;
 
   const profileRes = await fetch(
-    `https://graph.facebook.com/${facebookId}?fields=id,name&access_token=${accessToken}`
+    `https://graph.facebook.com/${facebookId}?fields=id,name,picture&access_token=${accessToken}`
   );
   return profileRes.json();
 }
@@ -65,7 +70,7 @@ async function getUserIdWithFacebookId(facebookId) {
   // 2번 경우
   const users = await getUsersCollection();
   const user = await users.findOne({
-    facebookId,
+    id: facebookId,
   });
 
   if (user) {
@@ -80,7 +85,10 @@ async function getUserIdWithFacebookId(facebookId) {
  * @param {string} token
  */
 async function getUserAccessTokenForFacebookAccessToken(token) {
-  const { facebookId, name } = await getFacebookProfileFromAccessToken(token);
+  const fbProfile = await getFacebookProfileFromAccessToken(token);
+  const { facebookId } = fbProfile;
+
+  // console창 test
 
   const existingUserId = await getUserIdWithFacebookId(facebookId);
 
@@ -90,7 +98,7 @@ async function getUserAccessTokenForFacebookAccessToken(token) {
   }
 
   // 1. 해당 facebook ID에 해당하는 유저가 데이터베이스에 없는 경우
-  const userId = await createUserWithFacebookProfileAndGetId(facebookId, name);
+  const userId = await createUserWithFacebookProfileAndGetId(fbProfile);
   return getAccessTokenForUserId(userId);
 }
 
