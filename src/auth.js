@@ -3,8 +3,7 @@
 // const { v4: uuidv4 } = require('uuid')
 
 // const { getUsersCollection } = require('./mongo')
-const { signJWT } = require('./jwt')
-
+const { signJWT } = require("./jwt");
 
 /**
  * @param {string} userId
@@ -15,4 +14,4 @@ async function getAccessTokenForUserId(userId) {
 
 module.exports = {
   getAccessTokenForUserId,
-}
+};

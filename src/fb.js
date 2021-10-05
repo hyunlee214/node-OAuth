@@ -12,14 +12,16 @@ const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET;
 
 /**
  * @param {string} facebookId
+ * @param {string} name
  * @returns {Promise<string>}
  */
-async function createUserWithFacebookIdAndGetId(facebookId) {
+async function createUserWithFacebookProfileAndGetId(facebookId, name) {
   const users = await getUsersCollection();
   const userId = uuidv4();
   await users.insertOne({
     id: userId,
     facebookId,
+    name,
   });
   return userId;
 }
@@ -28,7 +30,7 @@ async function createUserWithFacebookIdAndGetId(facebookId) {
  * @param {string} accessToken
  * @returns {Promise<string>}
  */
-async function getFacebookIdFromAccessToken(accessToken) {
+async function getFacebookProfileFromAccessToken(accessToken) {
   // facebook API를 사용하여 기능 구현
   // https://developers.facebook.com/docs/facebook-login/access-tokens/#generating-an-app-access-token
   // https://developers.facebook.com/docs/graph-api/reference/v10.0/debug_token
@@ -45,7 +47,14 @@ async function getFacebookIdFromAccessToken(accessToken) {
   if (debugResult.data.app_id !== FB_APP_ID) {
     throw new Error("Not a vaild access token");
   }
-  return debugResult.data.user_id;
+
+  // https://developers.facebook.com/docs/graph-api/overview 참고
+  const facebookId = debugResult.data.user_id;
+
+  const profileRes = await fetch(
+    `https://graph.facebook.com/${facebookId}?fields=id,name&access_token=${accessToken}`
+  );
+  return profileRes.json();
 }
 
 /**
@@ -58,6 +67,7 @@ async function getUserIdWithFacebookId(facebookId) {
   const user = await users.findOne({
     facebookId,
   });
+
   if (user) {
     return user.id;
   }
@@ -70,7 +80,7 @@ async function getUserIdWithFacebookId(facebookId) {
  * @param {string} token
  */
 async function getUserAccessTokenForFacebookAccessToken(token) {
-  const facebookId = await getFacebookIdFromAccessToken(token);
+  const { facebookId, name } = await getFacebookProfileFromAccessToken(token);
 
   const existingUserId = await getUserIdWithFacebookId(facebookId);
 
@@ -80,14 +90,14 @@ async function getUserAccessTokenForFacebookAccessToken(token) {
   }
 
   // 1. 해당 facebook ID에 해당하는 유저가 데이터베이스에 없는 경우
-  const userId = await createUserWithFacebookIdAndGetId(facebookId);
+  const userId = await createUserWithFacebookProfileAndGetId(facebookId, name);
   return getAccessTokenForUserId(userId);
 }
 
 module.exports = {
   FB_APP_ID,
   FB_CLIENT_SECRET,
-  getFacebookIdFromAccessToken,
+  getFacebookProfileFromAccessToken,
   getUserIdWithFacebookId,
   getUserAccessTokenForFacebookAccessToken,
 };

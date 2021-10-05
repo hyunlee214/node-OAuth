@@ -7,10 +7,11 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
   // @ts-ignore
-  console.log(`userId`, req.userId);
+  console.log(req.user);
   res.render("index", {
     // @ts-ignore
-    userId: req.userId,
+    userId: req.user?.id,
+    userName: req.user?.name,
     APP_CONFIG_JSON: JSON.stringify({
       FB_APP_ID,
     }).replace(/"/g, '\\"'),
